@@ -22,6 +22,39 @@
 """
 
 
+"""
+PRTG custom sensor JSON return format:
+{
+    "prtg": {
+        "result": [
+            {
+             "channel": "duration",
+             "value": 10,               (test_case_duration_ms)
+             "customunit": "ms",        (-)
+            },
+            {
+             "channel": "bla01",        (transaction_alias)
+             "value": 10,               (transaction_performance_ms)
+             "customunit": "ms",        (-)
+             "limitmaxerror": "30",     (transaction_critical_ms)
+             "limitmaxwarning": "20"    (transaction_warning_ms)
+             "limitmode": 1
+            },
+            {
+             "channel": "bla02",        (transaction_alias)
+             "value": 10,               (transaction_performance_ms)
+             "customunit": "ms",        (-)
+             "limitmaxerror": "30",     (transaction_critical_ms)
+             "limitmaxwarning": "20"    (transaction_warning_ms)
+             "limitmode": 1
+            }
+        ],
+        "text": "bla"                   (test_case_execution_code)
+    }
+}
+"""
+
+
 import argparse
 import json
 import socket

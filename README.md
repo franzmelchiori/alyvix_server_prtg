@@ -14,33 +14,3 @@ Deployment:
 2. install the batch file `sensor_alyvix_server.bat` in the folder
    `%programfiles(x86)%\PRTG Network Monitor\Custom Sensors\EXE` on
    the probe
-
-JSON Return Format:
-{
-    "prtg": {
-        "result": [
-            {
-             "channel": "duration",
-             "value": 10, (test_case_duration_ms)
-             "customunit": "ms", (-)
-            },
-            {
-             "channel": "bla01", (transaction_alias)
-             "value": 10, (transaction_performance_ms)
-             "customunit": "ms", (-)
-             "limitmaxerror": "30", (transaction_critical_ms)
-             "limitmaxwarning": "20" (transaction_warning_ms)
-             "limitmode": 1
-            },
-            {
-             "channel": "bla02", (transaction_alias)
-             "value": 10, (transaction_performance_ms)
-             "customunit": "ms", (-)
-             "limitmaxerror": "30", (transaction_critical_ms)
-             "limitmaxwarning": "20" (transaction_warning_ms)
-             "limitmode": 1
-            }
-        ],
-        "text": "bla" (test_case_execution_code)
-    }
-}
