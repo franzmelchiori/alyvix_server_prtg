@@ -29,7 +29,6 @@ import ssl
 import urllib.request
 
 from prtg.sensor.result import CustomSensorResult
-# from prtg.sensor.units import ValueUnit
 
 
 class AlyvixServerMeasure:
