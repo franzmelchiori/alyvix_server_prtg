@@ -137,7 +137,7 @@ class AlyvixServerPRTGSensor:
 
     def __repr__(self):
         if self.alyvix_server_response['measures']:
-            prtg_sensor_output_message = ' Test case report: '
+            prtg_sensor_output_message = 'Test case report: '
             prtg_sensor_output_message += \
                 '{0}/v0/testcases/{1}/reports/?runcode={2}'.format(
                     self.alyvix_server_https_url, self.test_case_alias,
