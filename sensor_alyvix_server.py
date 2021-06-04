@@ -22,44 +22,14 @@
 """
 
 
-"""
-PRTG custom sensor JSON return format:
-{
-    "prtg": {
-        "result": [
-            {
-             "channel": "duration",
-             "value": 10,               (test_case_duration_ms)
-             "customunit": "ms",        (-)
-            },
-            {
-             "channel": "bla01",        (transaction_alias)
-             "value": 10,               (transaction_performance_ms)
-             "customunit": "ms",        (-)
-             "limitmaxerror": "30",     (transaction_critical_ms)
-             "limitmaxwarning": "20"    (transaction_warning_ms)
-             "limitmode": 1
-            },
-            {
-             "channel": "bla02",        (transaction_alias)
-             "value": 10,               (transaction_performance_ms)
-             "customunit": "ms",        (-)
-             "limitmaxerror": "30",     (transaction_critical_ms)
-             "limitmaxwarning": "20"    (transaction_warning_ms)
-             "limitmode": 1
-            }
-        ],
-        "text": "bla"                   (test_case_execution_code)
-    }
-}
-"""
-
-
 import argparse
 import json
 import socket
 import ssl
 import urllib.request
+
+from prtg.sensor.result import CustomSensorResult
+# from prtg.sensor.units import ValueUnit
 
 
 class AlyvixServerMeasure:
@@ -347,5 +317,30 @@ def main():
         print(alyvix_server_prtg_agent)
 
 
+def test():
+    csr = CustomSensorResult(text='execution_code')
+
+    csr.add_channel(name="duration",
+                    value=100,
+                    unit='ms')
+
+    csr.add_channel(name="transaction_alias_1",
+                    value=10,
+                    unit='ms',
+                    is_limit_mode=True,
+                    limit_max_warning=20,
+                    limit_max_error=30)
+
+    csr.add_channel(name="transaction_alias_2",
+                    value=10,
+                    unit='ms',
+                    is_limit_mode=True,
+                    limit_max_warning=20,
+                    limit_max_error=30)
+
+    print(csr.json_result)
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    test()
