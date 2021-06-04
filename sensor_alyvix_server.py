@@ -92,33 +92,27 @@ class AlyvixServerPRTGMeasure(AlyvixServerMeasure):
         return self.output_measure()
 
     def output_measure(self):
-        prtg_agent_measure_output = ''
-        prtg_agent_separator = ''
-        prtg_agent_none = ''
-        prtg_agent_measure_output += '{0}={1};{2};{3};;{4}'.format(
-            self.transaction_alias,
-            self.transaction_performance_ms
-            if self.transaction_performance_ms else prtg_agent_none,
-            self.transaction_performance_ms
-            if self.transaction_warning_ms else prtg_agent_none,
-            self.transaction_performance_ms
-            if self.transaction_critical_ms else prtg_agent_none,
-            prtg_agent_separator)
-        return prtg_agent_measure_output
+        prtg_sensor_no_value = 0
+        prtg_sensor_measure_output = {
+            'name': self.transaction_alias,
+            'value': self.transaction_performance_ms \
+                if self.transaction_performance_ms else prtg_sensor_no_value,
+            'unit': 'ms',
+            'is_limit_mode': True,
+            'limit_max_warning': self.transaction_warning_ms \
+                if self.transaction_warning_ms else prtg_sensor_no_value,
+            'limit_max_error': self.transaction_critical_ms \
+                if self.transaction_critical_ms else prtg_sensor_no_value}
+        return prtg_sensor_measure_output
 
     def output_testcase(self):
-        prtg_agent_measure_output = ''
-        prtg_agent_separator = ' '
-        prtg_agent_none = ''
-        prtg_agent_measure_output += '{0}{1}'.format(
-            self.test_case_state, prtg_agent_separator)
-        prtg_agent_measure_output += '"Alyvix {0}"{1}'.format(
-            self.test_case_alias, prtg_agent_separator)
-        prtg_agent_measure_output += '{0}={1};;;;'.format(
-            'duration',
-            self.test_case_duration_ms
-            if self.test_case_duration_ms else prtg_agent_none)
-        return prtg_agent_measure_output
+        prtg_sensor_no_value = 0
+        prtg_sensor_measure_output = {
+            'name': 'duration',
+            'value': self.test_case_duration_ms \
+                if self.test_case_duration_ms else prtg_sensor_no_value,
+            'unit': 'ms'}
+        return prtg_sensor_measure_output
 
 
 class AlyvixServerPRTGSensor:
@@ -142,23 +136,22 @@ class AlyvixServerPRTGSensor:
         self.build_alyvix_server_prtg_measures()
 
     def __repr__(self):
-        prtg_agent_output = ''
         if self.alyvix_server_response['measures']:
-            prtg_agent_output += \
-                self.alyvix_server_prtg_testcase.output_testcase()
-            prtg_agent_output += '|'
-            prtg_agent_output += \
-                '|'.join(
-                    [self.alyvix_server_prtg_measure.output_measure()
-                     for self.alyvix_server_prtg_measure
-                     in self.alyvix_server_prtg_measures])
-            prtg_agent_output += ' Test case report: '
-            prtg_agent_output += \
+            prtg_sensor_output_message = ' Test case report: '
+            prtg_sensor_output_message += \
                 '{0}/v0/testcases/{1}/reports/?runcode={2}'.format(
                     self.alyvix_server_https_url, self.test_case_alias,
                     self.alyvix_server_prtg_testcase.
                     test_case_execution_code)
-        return prtg_agent_output
+            csr = CustomSensorResult(text=prtg_sensor_output_message)
+            csr.add_channel(
+                **self.alyvix_server_prtg_testcase.output_testcase())
+            for self.alyvix_server_prtg_measure \
+                in self.alyvix_server_prtg_measures:
+                csr.add_channel(
+                    **self.alyvix_server_prtg_measure.output_measure())
+            return csr.json_result
+        return ''
 
     def get_alyvix_server_data(self):
         self.alyvix_server_request = '{0}/v0/testcases/{1}/'.format(
@@ -311,35 +304,10 @@ def main():
             alyvix_server_https_url)()
 
     for test_case_alias in alyvix_server_test_cases:
-        alyvix_server_prtg_agent = AlyvixServerPRTGSensor(
+        alyvix_server_prtg_sensor = AlyvixServerPRTGSensor(
             alyvix_server_https_url, test_case_alias)
-        print(alyvix_server_prtg_agent)
-
-
-def test():
-    csr = CustomSensorResult(text='execution_code')
-
-    csr.add_channel(name="duration",
-                    value=100,
-                    unit='ms')
-
-    csr.add_channel(name="transaction_alias_1",
-                    value=10,
-                    unit='ms',
-                    is_limit_mode=True,
-                    limit_max_warning=20,
-                    limit_max_error=30)
-
-    csr.add_channel(name="transaction_alias_2",
-                    value=10,
-                    unit='ms',
-                    is_limit_mode=True,
-                    limit_max_warning=20,
-                    limit_max_error=30)
-
-    print(csr.json_result)
+        print(alyvix_server_prtg_sensor)
 
 
 if __name__ == '__main__':
-    # main()
-    test()
+    main()
