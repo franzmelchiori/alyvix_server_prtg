@@ -22,6 +22,7 @@
 """
 
 
+import sys
 import argparse
 import json
 import socket
@@ -277,36 +278,48 @@ class AlyvixServerTestcases:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='This PRTG custom sensor uses the RESTful web API'
-                    'of the Alyvix Server to gather transaction'
-                    'measurements about a given ongoing Alyvix test'
-                    'case.')
-    parser.add_argument(
-        '-a', '--alyvix_server_https_url',
-        help='set the HTTPS URL to Alyvix Server (e.g.'
-             'https://alyvixserver.co.lan)')
-    parser.add_argument(
-        '-t', '--test_case_alias',
-        help='set the Alyvix test case alias (e.g. visittrentino)')
-
-    args = parser.parse_args()
-    if args.alyvix_server_https_url:
-        alyvix_server_https_url = args.alyvix_server_https_url
-    else:
+    try:
+        data = json.loads(sys.argv[1])
         alyvix_server_https_url = 'https://'
         alyvix_server_https_url += socket.gethostbyname(
             socket.gethostname())
-    if args.test_case_alias:
-        alyvix_server_test_cases = [args.test_case_alias]
-    else:
-        alyvix_server_test_cases = AlyvixServerTestcases(
-            alyvix_server_https_url)()
+        test_case_alias = data["params"]
 
-    for test_case_alias in alyvix_server_test_cases:
         alyvix_server_prtg_sensor = AlyvixServerPRTGSensor(
             alyvix_server_https_url, test_case_alias)
         print(alyvix_server_prtg_sensor)
+
+    except json.decoder.JSONDecodeError:
+        parser = argparse.ArgumentParser(
+            description='This PRTG custom sensor uses the RESTful web API'
+                        'of the Alyvix Server to gather transaction'
+                        'measurements about a given ongoing Alyvix test'
+                        'case.')
+        parser.add_argument(
+            '-a', '--alyvix_server_https_url',
+            help='set the HTTPS URL to Alyvix Server (e.g.'
+                 'https://alyvixserver.co.lan)')
+        parser.add_argument(
+            '-t', '--test_case_alias',
+            help='set the Alyvix test case alias (e.g. visittrentino)')
+
+        args = parser.parse_args()
+        if args.alyvix_server_https_url:
+            alyvix_server_https_url = args.alyvix_server_https_url
+        else:
+            alyvix_server_https_url = 'https://'
+            alyvix_server_https_url += socket.gethostbyname(
+                socket.gethostname())
+        if args.test_case_alias:
+            alyvix_server_test_cases = [args.test_case_alias]
+        else:
+            alyvix_server_test_cases = AlyvixServerTestcases(
+                alyvix_server_https_url)()
+
+        for test_case_alias in alyvix_server_test_cases:
+            alyvix_server_prtg_sensor = AlyvixServerPRTGSensor(
+                alyvix_server_https_url, test_case_alias)
+            print(alyvix_server_prtg_sensor)
 
 
 if __name__ == '__main__':
